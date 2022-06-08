@@ -5,9 +5,13 @@ import hello.itemservice.repository.ItemSearchCond;
 import hello.itemservice.repository.ItemUpdateDto;
 import hello.itemservice.repository.memory.MemoryItemRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.List;
 
@@ -15,9 +19,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ItemRepositoryTest {
+    /*
+        테스트에서 중요한것은 격리성이다.
+        테스트를 실행할때는 디비에 데이터가 깔끔해야한다.
+        디비를 같이 쓰면 안된다. 테스트를 다른 환경과 철저하게 분리해야한다.
+        테스트는 다른 테스트와 격리 뿐만 아니라 반복해서 수행할 수 있어야한다.
+     */
 
     @Autowired
     ItemRepository itemRepository;
+
+    @Autowired
+    PlatformTransactionManager transactionManager;
+    TransactionStatus status;
+
+    @BeforeEach
+    void beforeEach() {
+        //트랜잭션 시작
+        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+    }
 
     @AfterEach
     void afterEach() {
@@ -25,6 +45,9 @@ class ItemRepositoryTest {
         if (itemRepository instanceof MemoryItemRepository) {
             ((MemoryItemRepository) itemRepository).clearStore();
         }
+
+        //트랜잭션 롤백
+        transactionManager.rollback(status);
     }
 
     @Test
