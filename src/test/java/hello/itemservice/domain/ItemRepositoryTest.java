@@ -5,18 +5,21 @@ import hello.itemservice.repository.ItemSearchCond;
 import hello.itemservice.repository.ItemUpdateDto;
 import hello.itemservice.repository.memory.MemoryItemRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Transactional
+/*
+    스프링이 제공하는 @Transactional은 로직이 성공적으로 되면 커밋하도록 동작하는데
+    테스트 케이스에서는 특별하게 동작한다 !!!!!
+    * 테스트가 끝나면 트랜잭션을 자동으로 롤백시켜버린
+ */
 @SpringBootTest
 class ItemRepositoryTest {
     /*
@@ -29,15 +32,15 @@ class ItemRepositoryTest {
     @Autowired
     ItemRepository itemRepository;
 
-    @Autowired
-    PlatformTransactionManager transactionManager;
-    TransactionStatus status;
-
-    @BeforeEach
-    void beforeEach() {
-        //트랜잭션 시작
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-    }
+//    @Autowired
+//    PlatformTransactionManager transactionManager;
+//    TransactionStatus status;
+//
+//    @BeforeEach
+//    void beforeEach() {
+//        //트랜잭션 시작
+//        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+//    }
 
     @AfterEach
     void afterEach() {
@@ -47,7 +50,7 @@ class ItemRepositoryTest {
         }
 
         //트랜잭션 롤백
-        transactionManager.rollback(status);
+//        transactionManager.rollback(status);
     }
 
     @Test
